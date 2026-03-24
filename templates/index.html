@@ -1,39 +1,639 @@
-<h2>Survival System</h2>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Survival System</title>
+    <style>
+        :root {
+            --bg: #0b1020;
+            --panel: rgba(20, 28, 48, 0.88);
+            --panel-2: rgba(15, 22, 39, 0.92);
+            --border: rgba(120, 140, 190, 0.18);
+            --text: #edf2ff;
+            --muted: #9fb0d1;
+            --accent: #5b8cff;
+            --accent-2: #7d5cff;
+            --good: #1fc77e;
+            --warn: #ffb020;
+            --bad: #ff5d73;
+            --shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+            --radius: 22px;
+        }
 
-<label>People:</label><br>
-<input id="people" type="number" value="1"><br><br>
+        * { box-sizing: border-box; }
 
-<label>Water (Litres):</label><br>
-<input id="water" type="number" value="10"><br><br>
+        body {
+            margin: 0;
+            font-family: Inter, Arial, sans-serif;
+            background:
+                radial-gradient(circle at top left, rgba(91,140,255,0.18), transparent 28%),
+                radial-gradient(circle at top right, rgba(125,92,255,0.18), transparent 25%),
+                linear-gradient(180deg, #0b1020 0%, #070b16 100%);
+            color: var(--text);
+            min-height: 100vh;
+        }
 
-<label>Food (Calories):</label><br>
-<input id="food" type="number" value="2000"><br><br>
+        .wrap {
+            max-width: 1380px;
+            margin: 0 auto;
+            padding: 36px 20px 60px;
+        }
 
-<label>Fuel (grams):</label><br>
-<input id="fuel" type="number" value="100"><br><br>
+        .hero {
+            padding: 28px 30px;
+            border: 1px solid var(--border);
+            background: linear-gradient(180deg, rgba(18,26,45,0.95), rgba(12,18,32,0.95));
+            border-radius: 28px;
+            box-shadow: var(--shadow);
+            margin-bottom: 24px;
+        }
 
-<label>Medical Coverage (days):</label><br>
-<input id="medical" type="number" value="3"><br><br>
+        .eyebrow {
+            color: #8aa8ff;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.18em;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
 
-<button onclick="calculate()">Run Survival Analysis</button>
+        h1 {
+            margin: 0 0 8px;
+            font-size: 40px;
+            line-height: 1.05;
+        }
 
-<h3 id="output"></h3>
+        .sub {
+            color: var(--muted);
+            max-width: 820px;
+            line-height: 1.6;
+            font-size: 16px;
+        }
 
-<script>
-async function calculate() {
-    const data = {
-        people: Number(document.getElementById("people").value),
-        water: Number(document.getElementById("water").value),
-        food: Number(document.getElementById("food").value),
-        fuel: Number(document.getElementById("fuel").value),
-        medical: Number(document.getElementById("medical").value)
-    };
+        .grid {
+            display: grid;
+            grid-template-columns: 380px 1fr;
+            gap: 24px;
+            align-items: start;
+        }
 
-    const res = await fetch("/calculate", {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify(data)
-    });
+        .card {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+        }
+
+        .form-card {
+            padding: 22px;
+            position: sticky;
+            top: 18px;
+        }
+
+        .panel {
+            padding: 22px;
+        }
+
+        .section-title {
+            margin: 0 0 18px;
+            font-size: 18px;
+        }
+
+        .inputs {
+            display: grid;
+            gap: 14px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 7px;
+            font-size: 13px;
+            color: var(--muted);
+        }
+
+        .input-group input,
+        .input-group select {
+            width: 100%;
+            border: 1px solid rgba(130,150,200,0.18);
+            background: rgba(8, 13, 24, 0.9);
+            color: var(--text);
+            border-radius: 14px;
+            padding: 12px 14px;
+            font-size: 14px;
+            outline: none;
+        }
+
+        .inline-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .toggle {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding-top: 4px;
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        .toggle input {
+            width: 18px;
+            height: 18px;
+        }
+
+        .btn {
+            width: 100%;
+            border: 0;
+            cursor: pointer;
+            border-radius: 16px;
+            padding: 14px 16px;
+            font-size: 15px;
+            font-weight: 700;
+            color: white;
+            background: linear-gradient(135deg, var(--accent), var(--accent-2));
+            box-shadow: 0 10px 30px rgba(91, 140, 255, 0.3);
+            margin-top: 8px;
+        }
+
+        .results {
+            display: grid;
+            gap: 24px;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+        }
+
+        .stat {
+            padding: 18px;
+            background: var(--panel-2);
+            border: 1px solid var(--border);
+            border-radius: 18px;
+        }
+
+        .stat .k {
+            color: var(--muted);
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            margin-bottom: 8px;
+        }
+
+        .stat .v {
+            font-size: 28px;
+            font-weight: 800;
+        }
+
+        .status-ready { color: var(--good); }
+        .status-tight { color: var(--warn); }
+        .status-critical { color: var(--bad); }
+
+        .two-col {
+            display: grid;
+            grid-template-columns: 1.1fr 0.9fr;
+            gap: 24px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 12px 10px;
+            text-align: left;
+            border-bottom: 1px solid rgba(120,140,190,0.14);
+            font-size: 14px;
+        }
+
+        th {
+            color: var(--muted);
+            font-weight: 600;
+        }
+
+        .tag {
+            display: inline-block;
+            padding: 6px 10px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .tag-good { background: rgba(31,199,126,0.14); color: var(--good); }
+        .tag-warn { background: rgba(255,176,32,0.14); color: var(--warn); }
+        .tag-bad { background: rgba(255,93,115,0.14); color: var(--bad); }
+
+        .recs {
+            display: grid;
+            gap: 12px;
+        }
+
+        .rec {
+            padding: 14px 16px;
+            border-radius: 16px;
+            background: rgba(11, 18, 33, 0.8);
+            border: 1px solid rgba(120,140,190,0.14);
+            color: #d9e2ff;
+            line-height: 1.5;
+        }
+
+        .sim-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+
+        .timeline-list {
+            max-height: 420px;
+            overflow: auto;
+            padding-right: 4px;
+        }
+
+        .timeline-row {
+            display: grid;
+            grid-template-columns: 72px 1fr;
+            gap: 14px;
+            padding: 14px 0;
+            border-bottom: 1px solid rgba(120,140,190,0.12);
+        }
+
+        .day-badge {
+            width: 72px;
+            height: 72px;
+            display: grid;
+            place-items: center;
+            border-radius: 18px;
+            background: rgba(91, 140, 255, 0.12);
+            color: #bfd0ff;
+            font-weight: 800;
+        }
+
+        .small {
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        .chart {
+            display: grid;
+            gap: 14px;
+        }
+
+        .bar-wrap {
+            display: grid;
+            gap: 6px;
+        }
+
+        .bar-line {
+            height: 14px;
+            width: 100%;
+            background: rgba(255,255,255,0.06);
+            border-radius: 999px;
+            overflow: hidden;
+        }
+
+        .bar-fill {
+            height: 100%;
+            border-radius: 999px;
+        }
+
+        .water { background: linear-gradient(90deg, #4da3ff, #7ac4ff); }
+        .food { background: linear-gradient(90deg, #7d5cff, #9f7dff); }
+        .fuel { background: linear-gradient(90deg, #ff9f43, #ffc46b); }
+        .medical { background: linear-gradient(90deg, #1fc77e, #66e3aa); }
+
+        .empty {
+            color: var(--muted);
+            padding: 12px 0 0;
+        }
+
+        @media (max-width: 1120px) {
+            .grid, .two-col, .sim-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .form-card {
+                position: static;
+            }
+        }
+
+        @media (max-width: 640px) {
+            h1 { font-size: 30px; }
+            .stats { grid-template-columns: 1fr; }
+            .inline-2 { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="wrap">
+        <section class="hero card">
+            <div class="eyebrow">Resource Survival System</div>
+            <h1>How long do you actually last, and what fails first?</h1>
+            <div class="sub">
+                Live survival analysis with weakest-link detection, day-by-day depletion simulation,
+                and practical recommendation output for water, food, fuel, and medical coverage.
+            </div>
+        </section>
+
+        <div class="grid">
+            <aside class="form-card card">
+                <h2 class="section-title">System Inputs</h2>
+                <div class="inputs">
+                    <div class="input-group">
+                        <label for="people">People</label>
+                        <input id="people" type="number" min="1" value="1" />
+                    </div>
+
+                    <div class="input-group">
+                        <label for="target_days">Target Days</label>
+                        <input id="target_days" type="number" min="1" value="7" />
+                    </div>
+
+                    <div class="inline-2">
+                        <div class="input-group">
+                            <label for="activity">Activity</label>
+                            <select id="activity">
+                                <option value="low">Low</option>
+                                <option value="medium" selected>Medium</option>
+                                <option value="high">High</option>
+                            </select>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="climate">Climate</label>
+                            <select id="climate">
+                                <option value="mild" selected>Mild</option>
+                                <option value="hot">Hot</option>
+                                <option value="cold">Cold</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="inline-2">
+                        <div class="input-group">
+                            <label for="water_access">Water Access</label>
+                            <select id="water_access">
+                                <option value="none" selected>None</option>
+                                <option value="limited">Limited</option>
+                                <option value="yes">Reliable</option>
+                            </select>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="medical">Medical Coverage (days)</label>
+                            <input id="medical" type="number" min="0" value="5" />
+                        </div>
+                    </div>
+
+                    <div class="toggle">
+                        <input id="cooking" type="checkbox" checked />
+                        <label for="cooking">Cooking required</label>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="water">Water (litres)</label>
+                        <input id="water" type="number" min="0" value="10" />
+                    </div>
+
+                    <div class="input-group">
+                        <label for="food">Food (calories)</label>
+                        <input id="food" type="number" min="0" value="2000" />
+                    </div>
+
+                    <div class="input-group">
+                        <label for="fuel">Fuel (grams)</label>
+                        <input id="fuel" type="number" min="0" value="100" />
+                    </div>
+
+                    <button class="btn" onclick="runAnalysis()">Run Survival Analysis</button>
+                </div>
+            </aside>
+
+            <main class="results">
+                <section class="panel card">
+                    <div class="stats">
+                        <div class="stat">
+                            <div class="k">Survivable Days</div>
+                            <div class="v" id="survivable_days">—</div>
+                        </div>
+                        <div class="stat">
+                            <div class="k">Weakest Link</div>
+                            <div class="v" id="weakest">—</div>
+                        </div>
+                        <div class="stat">
+                            <div class="k">Status</div>
+                            <div class="v" id="status">—</div>
+                        </div>
+                        <div class="stat">
+                            <div class="k">Collapse Day</div>
+                            <div class="v" id="collapse_day">—</div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="two-col">
+                    <div class="panel card">
+                        <h2 class="section-title">Coverage Engine</h2>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Resource</th>
+                                    <th>Available</th>
+                                    <th>Daily Use</th>
+                                    <th>Days</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="coverage_table">
+                                <tr><td colspan="5" class="empty">Run the analysis to populate results.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="panel card">
+                        <h2 class="section-title">AI Recommendations</h2>
+                        <div class="recs" id="recommendations">
+                            <div class="empty">No recommendations yet.</div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="sim-grid">
+                    <div class="panel card">
+                        <h2 class="section-title">Time Simulation</h2>
+                        <div class="timeline-list" id="timeline_list">
+                            <div class="empty">No simulation loaded.</div>
+                        </div>
+                    </div>
+
+                    <div class="panel card">
+                        <h2 class="section-title">Resource Snapshot</h2>
+                        <div class="chart" id="resource_bars">
+                            <div class="empty">Run the analysis to view resource bars.</div>
+                        </div>
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        function statusClass(status) {
+            if (status === "READY") return "status-ready";
+            if (status === "TIGHT") return "status-tight";
+            return "status-critical";
+        }
+
+        function tagClass(days) {
+            if (days > 7) return "tag-good";
+            if (days > 3) return "tag-warn";
+            return "tag-bad";
+        }
+
+        function niceLabel(text) {
+            return text.charAt(0).toUpperCase() + text.slice(1);
+        }
+
+        function getPayload() {
+            return {
+                people: Number(document.getElementById("people").value),
+                target_days: Number(document.getElementById("target_days").value),
+                water: Number(document.getElementById("water").value),
+                food: Number(document.getElementById("food").value),
+                fuel: Number(document.getElementById("fuel").value),
+                medical: Number(document.getElementById("medical").value),
+                activity: document.getElementById("activity").value,
+                climate: document.getElementById("climate").value,
+                water_access: document.getElementById("water_access").value,
+                cooking: document.getElementById("cooking").checked
+            };
+        }
+
+        function renderSummary(data) {
+            document.getElementById("survivable_days").innerText = data.survivable_days;
+            document.getElementById("weakest").innerText = niceLabel(data.weakest);
+            const statusEl = document.getElementById("status");
+            statusEl.innerText = data.status;
+            statusEl.className = `v ${statusClass(data.status)}`;
+            document.getElementById("collapse_day").innerText =
+                data.simulation.collapse_day ? `Day ${data.simulation.collapse_day}` : "None";
+        }
+
+        function renderCoverage(data) {
+            const tbody = document.getElementById("coverage_table");
+            const rows = [
+                { key: "water", available: `${data.resources.water} L`, daily: `${data.daily.effective_water} L` },
+                { key: "food", available: `${data.resources.food} cal`, daily: `${data.daily.food} cal` },
+                { key: "fuel", available: `${data.resources.fuel} g`, daily: `${data.daily.fuel} g` },
+                { key: "medical", available: `${data.resources.medical} days`, daily: `1 day` }
+            ];
+
+            tbody.innerHTML = rows.map(row => {
+                const days = data.coverage[row.key];
+                return `
+                    <tr>
+                        <td>${niceLabel(row.key)}</td>
+                        <td>${row.available}</td>
+                        <td>${row.daily}</td>
+                        <td>${days}</td>
+                        <td><span class="tag ${tagClass(days)}">${days > 7 ? "READY" : days > 3 ? "TIGHT" : "CRITICAL"}</span></td>
+                    </tr>
+                `;
+            }).join("");
+        }
+
+        function renderRecommendations(data) {
+            const box = document.getElementById("recommendations");
+            if (!data.recommendations || !data.recommendations.length) {
+                box.innerHTML = `<div class="empty">No recommendations yet.</div>`;
+                return;
+            }
+
+            box.innerHTML = data.recommendations
+                .map(item => `<div class="rec">${item}</div>`)
+                .join("");
+        }
+
+        function renderTimeline(data) {
+            const list = document.getElementById("timeline_list");
+            const timeline = data.simulation.timeline || [];
+
+            if (!timeline.length) {
+                list.innerHTML = `<div class="empty">No simulation loaded.</div>`;
+                return;
+            }
+
+            list.innerHTML = timeline.map(day => `
+                <div class="timeline-row">
+                    <div class="day-badge">Day ${day.day}</div>
+                    <div>
+                        <div><strong>Water:</strong> ${day.water} L</div>
+                        <div><strong>Food:</strong> ${day.food} cal</div>
+                        <div><strong>Fuel:</strong> ${day.fuel} g</div>
+                        <div><strong>Medical:</strong> ${day.medical} days</div>
+                        <div class="small">
+                            ${day.collapse ? `Collapse triggered by: ${day.failures.join(", ")}` : "Operational"}
+                        </div>
+                    </div>
+                </div>
+            `).join("");
+        }
+
+        function renderBars(data) {
+            const box = document.getElementById("resource_bars");
+            const target = Math.max(data.target_days, 1);
+
+            const items = [
+                { key: "water", label: "Water", className: "water" },
+                { key: "food", label: "Food", className: "food" },
+                { key: "fuel", label: "Fuel", className: "fuel" },
+                { key: "medical", label: "Medical", className: "medical" }
+            ];
+
+            box.innerHTML = items.map(item => {
+                const days = Number(data.coverage[item.key] || 0);
+                const pct = Math.min((days / target) * 100, 100);
+                return `
+                    <div class="bar-wrap">
+                        <div><strong>${item.label}</strong> <span class="small">${days} days coverage</span></div>
+                        <div class="bar-line">
+                            <div class="bar-fill ${item.className}" style="width:${pct}%"></div>
+                        </div>
+                    </div>
+                `;
+            }).join("");
+        }
+
+        async function runAnalysis() {
+            const payload = getPayload();
+
+            const res = await fetch("/calculate", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            });
+
+            const data = await res.json();
+
+            renderSummary(data);
+            renderCoverage(data);
+            renderRecommendations(data);
+            renderTimeline(data);
+            renderBars(data);
+        }
+
+        runAnalysis();
+    </script>
+</body>
+</html>
 
     const result = await res.json();
 
