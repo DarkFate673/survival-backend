@@ -7,8 +7,8 @@
     <style>
         :root {
             --bg: #0b1020;
-            --panel: rgba(20, 28, 48, 0.88);
-            --panel-2: rgba(15, 22, 39, 0.92);
+            --panel: rgba(20, 28, 48, 0.9);
+            --panel-2: rgba(15, 22, 39, 0.95);
             --border: rgba(120, 140, 190, 0.18);
             --text: #edf2ff;
             --muted: #9fb0d1;
@@ -27,8 +27,8 @@
             margin: 0;
             font-family: Inter, Arial, sans-serif;
             background:
-                radial-gradient(circle at top left, rgba(91,140,255,0.18), transparent 28%),
-                radial-gradient(circle at top right, rgba(125,92,255,0.18), transparent 25%),
+                radial-gradient(circle at top left, rgba(91, 140, 255, 0.18), transparent 28%),
+                radial-gradient(circle at top right, rgba(125, 92, 255, 0.18), transparent 25%),
                 linear-gradient(180deg, #0b1020 0%, #070b16 100%);
             color: var(--text);
             min-height: 100vh;
@@ -43,7 +43,7 @@
         .hero {
             padding: 28px 30px;
             border: 1px solid var(--border);
-            background: linear-gradient(180deg, rgba(18,26,45,0.95), rgba(12,18,32,0.95));
+            background: linear-gradient(180deg, rgba(18, 26, 45, 0.95), rgba(12, 18, 32, 0.95));
             border-radius: 28px;
             box-shadow: var(--shadow);
             margin-bottom: 24px;
@@ -115,7 +115,7 @@
         .input-group input,
         .input-group select {
             width: 100%;
-            border: 1px solid rgba(130,150,200,0.18);
+            border: 1px solid rgba(130, 150, 200, 0.18);
             background: rgba(8, 13, 24, 0.9);
             color: var(--text);
             border-radius: 14px;
@@ -207,8 +207,9 @@
         th, td {
             padding: 12px 10px;
             text-align: left;
-            border-bottom: 1px solid rgba(120,140,190,0.14);
+            border-bottom: 1px solid rgba(120, 140, 190, 0.14);
             font-size: 14px;
+            vertical-align: top;
         }
 
         th {
@@ -224,9 +225,9 @@
             font-weight: 700;
         }
 
-        .tag-good { background: rgba(31,199,126,0.14); color: var(--good); }
-        .tag-warn { background: rgba(255,176,32,0.14); color: var(--warn); }
-        .tag-bad { background: rgba(255,93,115,0.14); color: var(--bad); }
+        .tag-good { background: rgba(31, 199, 126, 0.14); color: var(--good); }
+        .tag-warn { background: rgba(255, 176, 32, 0.14); color: var(--warn); }
+        .tag-bad { background: rgba(255, 93, 115, 0.14); color: var(--bad); }
 
         .recs {
             display: grid;
@@ -237,7 +238,7 @@
             padding: 14px 16px;
             border-radius: 16px;
             background: rgba(11, 18, 33, 0.8);
-            border: 1px solid rgba(120,140,190,0.14);
+            border: 1px solid rgba(120, 140, 190, 0.14);
             color: #d9e2ff;
             line-height: 1.5;
         }
@@ -259,7 +260,7 @@
             grid-template-columns: 72px 1fr;
             gap: 14px;
             padding: 14px 0;
-            border-bottom: 1px solid rgba(120,140,190,0.12);
+            border-bottom: 1px solid rgba(120, 140, 190, 0.12);
         }
 
         .day-badge {
@@ -291,7 +292,7 @@
         .bar-line {
             height: 14px;
             width: 100%;
-            background: rgba(255,255,255,0.06);
+            background: rgba(255, 255, 255, 0.06);
             border-radius: 999px;
             overflow: hidden;
         }
@@ -306,9 +307,14 @@
         .fuel { background: linear-gradient(90deg, #ff9f43, #ffc46b); }
         .medical { background: linear-gradient(90deg, #1fc77e, #66e3aa); }
 
-        .empty {
+        .empty,
+        .error {
             color: var(--muted);
             padding: 12px 0 0;
+        }
+
+        .error {
+            color: var(--bad);
         }
 
         @media (max-width: 1120px) {
@@ -339,13 +345,14 @@
             <h1>How long do you actually last, and what fails first?</h1>
             <div class="sub">
                 Live survival analysis with weakest-link detection, day-by-day depletion simulation,
-                and practical recommendation output for water, food, fuel, and medical coverage.
+                and practical recommendation output for water, food, petrol, diesel, and medical coverage.
             </div>
         </section>
 
         <div class="grid">
             <aside class="form-card card">
                 <h2 class="section-title">System Inputs</h2>
+
                 <div class="inputs">
                     <div class="input-group">
                         <label for="people">People</label>
@@ -408,12 +415,20 @@
                         <input id="food" type="number" min="0" value="2000" />
                     </div>
 
-                    <div class="input-group">
-                        <label for="fuel">Fuel (grams)</label>
-                        <input id="fuel" type="number" min="0" value="100" />
+                    <div class="inline-2">
+                        <div class="input-group">
+                            <label for="petrol">Petrol (litres)</label>
+                            <input id="petrol" type="number" min="0" value="0" />
+                        </div>
+
+                        <div class="input-group">
+                            <label for="diesel">Diesel (litres)</label>
+                            <input id="diesel" type="number" min="0" value="0" />
+                        </div>
                     </div>
 
                     <button class="btn" onclick="runAnalysis()">Run Survival Analysis</button>
+                    <div id="error_box" class="error"></div>
                 </div>
             </aside>
 
@@ -499,7 +514,12 @@
         }
 
         function niceLabel(text) {
-            return text.charAt(0).toUpperCase() + text.slice(1);
+            if (!text) return "—";
+            return text.charAt(0).toUpperCase() + text.slice(1).replace(/_/g, " ");
+        }
+
+        function setError(message) {
+            document.getElementById("error_box").innerText = message || "";
         }
 
         function getPayload() {
@@ -508,7 +528,8 @@
                 target_days: Number(document.getElementById("target_days").value),
                 water: Number(document.getElementById("water").value),
                 food: Number(document.getElementById("food").value),
-                fuel: Number(document.getElementById("fuel").value),
+                petrol: Number(document.getElementById("petrol").value),
+                diesel: Number(document.getElementById("diesel").value),
                 medical: Number(document.getElementById("medical").value),
                 activity: document.getElementById("activity").value,
                 climate: document.getElementById("climate").value,
@@ -518,33 +539,61 @@
         }
 
         function renderSummary(data) {
-            document.getElementById("survivable_days").innerText = data.survivable_days;
+            document.getElementById("survivable_days").innerText = data.survivable_days ?? "—";
             document.getElementById("weakest").innerText = niceLabel(data.weakest);
+
             const statusEl = document.getElementById("status");
-            statusEl.innerText = data.status;
+            statusEl.innerText = data.status ?? "—";
             statusEl.className = `v ${statusClass(data.status)}`;
-            document.getElementById("collapse_day").innerText =
-                data.simulation.collapse_day ? `Day ${data.simulation.collapse_day}` : "None";
+
+            const collapseDay = data.simulation?.collapse_day;
+            document.getElementById("collapse_day").innerText = collapseDay ? `Day ${collapseDay}` : "None";
         }
 
         function renderCoverage(data) {
             const tbody = document.getElementById("coverage_table");
+
+            const waterDaily = data.daily?.effective_water ?? data.daily?.water ?? 0;
+            const fuelAvailable = `${data.resources?.fuel_total ?? 0} L (P:${data.resources?.petrol ?? 0} / D:${data.resources?.diesel ?? 0})`;
+
             const rows = [
-                { key: "water", available: `${data.resources.water} L`, daily: `${data.daily.effective_water} L` },
-                { key: "food", available: `${data.resources.food} cal`, daily: `${data.daily.food} cal` },
-                { key: "fuel", available: `${data.resources.fuel} g`, daily: `${data.daily.fuel} g` },
-                { key: "medical", available: `${data.resources.medical} days`, daily: `1 day` }
+                {
+                    key: "water",
+                    label: "Water",
+                    available: `${data.resources?.water ?? 0} L`,
+                    daily: `${waterDaily} L`
+                },
+                {
+                    key: "food",
+                    label: "Food",
+                    available: `${data.resources?.food ?? 0} cal`,
+                    daily: `${data.daily?.food ?? 0} cal`
+                },
+                {
+                    key: "fuel",
+                    label: "Fuel",
+                    available: fuelAvailable,
+                    daily: `${data.daily?.fuel ?? 0} L`
+                },
+                {
+                    key: "medical",
+                    label: "Medical",
+                    available: `${data.resources?.medical ?? 0} days`,
+                    daily: `1 day`
+                }
             ];
 
             tbody.innerHTML = rows.map(row => {
-                const days = data.coverage[row.key];
+                const days = Number(data.coverage?.[row.key] ?? 0);
+                const badge = days > 7 ? "READY" : days > 3 ? "TIGHT" : "CRITICAL";
+
                 return `
                     <tr>
-                        <td>${niceLabel(row.key)}</td>
+                        <td>${row.label}</td>
                         <td>${row.available}</td>
                         <td>${row.daily}</td>
                         <td>${days}</td>
-                        <td><span class="tag ${tagClass(days)}">${days > 7 ? "READY" : days > 3 ? "TIGHT" : "CRITICAL"}</span></td>
+                        <td><span class="tag ${tagClass(days)}">${badge}</span></td>
                     </tr>
                 `;
             }).join("");
@@ -552,55 +601,61 @@
 
         function renderRecommendations(data) {
             const box = document.getElementById("recommendations");
-            if (!data.recommendations || !data.recommendations.length) {
+            const items = Array.isArray(data.recommendations) ? data.recommendations : [];
+
+            if (!items.length) {
                 box.innerHTML = `<div class="empty">No recommendations yet.</div>`;
                 return;
             }
 
-            box.innerHTML = data.recommendations
-                .map(item => `<div class="rec">${item}</div>`)
-                .join("");
+            box.innerHTML = items.map(item => `<div class="rec">${item}</div>`).join("");
         }
 
         function renderTimeline(data) {
             const list = document.getElementById("timeline_list");
-            const timeline = data.simulation.timeline || [];
+            const timeline = Array.isArray(data.simulation?.timeline) ? data.simulation.timeline : [];
 
             if (!timeline.length) {
                 list.innerHTML = `<div class="empty">No simulation loaded.</div>`;
                 return;
             }
 
-            list.innerHTML = timeline.map(day => `
-                <div class="timeline-row">
-                    <div class="day-badge">Day ${day.day}</div>
-                    <div>
-                        <div><strong>Water:</strong> ${day.water} L</div>
-                        <div><strong>Food:</strong> ${day.food} cal</div>
-                        <div><strong>Fuel:</strong> ${day.fuel} g</div>
-                        <div><strong>Medical:</strong> ${day.medical} days</div>
-                        <div class="small">
-                            ${day.collapse ? `Collapse triggered by: ${day.failures.join(", ")}` : "Operational"}
+            list.innerHTML = timeline.map(day => {
+                const failures = Array.isArray(day.failures) ? day.failures.join(", ") : "";
+                return `
+                    <div class="timeline-row">
+                        <div class="day-badge">Day ${day.day}</div>
+                        <div>
+                            <div><strong>Water:</strong> ${day.water ?? 0} L</div>
+                            <div><strong>Food:</strong> ${day.food ?? 0} cal</div>
+                            <div><strong>Fuel Total:</strong> ${day.fuel_total ?? 0} L</div>
+                            <div><strong>Petrol:</strong> ${day.petrol ?? 0} L</div>
+                            <div><strong>Diesel:</strong> ${day.diesel ?? 0} L</div>
+                            <div><strong>Medical:</strong> ${day.medical ?? 0} days</div>
+                            <div class="small">
+                                ${day.collapse ? `Collapse triggered by: ${failures}` : "Operational"}
+                            </div>
                         </div>
                     </div>
-                </div>
-            `).join("");
+                `;
+            }).join("");
         }
 
         function renderBars(data) {
             const box = document.getElementById("resource_bars");
-            const target = Math.max(data.target_days, 1);
+            const target = Math.max(Number(data.target_days ?? 1), 1);
 
             const items = [
                 { key: "water", label: "Water", className: "water" },
                 { key: "food", label: "Food", className: "food" },
-                { key: "fuel", label: "Fuel", className: "fuel" },
+                { key: "fuel", label: "Total Fuel", className: "fuel" },
                 { key: "medical", label: "Medical", className: "medical" }
             ];
 
             box.innerHTML = items.map(item => {
-                const days = Number(data.coverage[item.key] || 0);
+                const days = Number(data.coverage?.[item.key] ?? 0);
                 const pct = Math.min((days / target) * 100, 100);
+
                 return `
                     <div class="bar-wrap">
                         <div><strong>${item.label}</strong> <span class="small">${days} days coverage</span></div>
@@ -613,33 +668,34 @@
         }
 
         async function runAnalysis() {
-            const payload = getPayload();
+            setError("");
 
-            const res = await fetch("/calculate", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(payload)
-            });
+            try {
+                const payload = getPayload();
 
-            const data = await res.json();
+                const res = await fetch("/calculate", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload)
+                });
 
-            renderSummary(data);
-            renderCoverage(data);
-            renderRecommendations(data);
-            renderTimeline(data);
-            renderBars(data);
+                if (!res.ok) {
+                    throw new Error(`Request failed: ${res.status}`);
+                }
+
+                const data = await res.json();
+
+                renderSummary(data);
+                renderCoverage(data);
+                renderRecommendations(data);
+                renderTimeline(data);
+                renderBars(data);
+            } catch (err) {
+                setError(`Analysis failed: ${err.message}`);
+            }
         }
 
         runAnalysis();
     </script>
 </body>
 </html>
-
-    const result = await res.json();
-
-    document.getElementById("output").innerText =
-        "Days: " + result.survivable_days +
-        " | Weakest: " + result.weakest +
-        " | Status: " + result.status;
-}
-</script>
