@@ -1,10 +1,3 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Survival System</title>
-</head>
-<body style="font-family: Arial; padding: 20px;">
-
 <h2>Survival System</h2>
 
 <label>People:</label><br>
@@ -13,15 +6,27 @@
 <label>Water (Litres):</label><br>
 <input id="water" type="number" value="10"><br><br>
 
-<button onclick="calculate()">Calculate</button>
+<label>Food (Calories):</label><br>
+<input id="food" type="number" value="2000"><br><br>
 
-<h3 id="result"></h3>
+<label>Fuel (grams):</label><br>
+<input id="fuel" type="number" value="100"><br><br>
+
+<label>Medical Coverage (days):</label><br>
+<input id="medical" type="number" value="3"><br><br>
+
+<button onclick="calculate()">Run Survival Analysis</button>
+
+<h3 id="output"></h3>
 
 <script>
 async function calculate() {
     const data = {
         people: Number(document.getElementById("people").value),
-        water: Number(document.getElementById("water").value)
+        water: Number(document.getElementById("water").value),
+        food: Number(document.getElementById("food").value),
+        fuel: Number(document.getElementById("fuel").value),
+        medical: Number(document.getElementById("medical").value)
     };
 
     const res = await fetch("/calculate", {
@@ -32,10 +37,9 @@ async function calculate() {
 
     const result = await res.json();
 
-    document.getElementById("result").innerText =
-        "Days survivable: " + result.days;
+    document.getElementById("output").innerText =
+        "Days: " + result.survivable_days +
+        " | Weakest: " + result.weakest +
+        " | Status: " + result.status;
 }
 </script>
-
-</body>
-</html>
