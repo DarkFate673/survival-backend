@@ -22,13 +22,15 @@ def get_daily_usage(inputs):
     # Base
     water = 3.0
     food = 2000.0
-    fuel = 0.5 if cooking else 0.1  # litres
+    fuel = 0.5 if cooking else 0.1  # litres/petrol/diesel
+    gas = 0.15 if cooking else 0
 
     # Activity
     if activity == "high":
         water *= 1.25
         food *= 1.3
         fuel *= 1.15
+        gas *= 1.1   # optional but consistent
     elif activity == "low":
         water *= 0.95
         food *= 0.9
@@ -44,6 +46,7 @@ def get_daily_usage(inputs):
         "water": round(water * people, 2),
         "food": round(food * people, 2),
         "fuel": round(fuel * people, 2)
+        "gas": round(gas * people, 2)
     }
 
 
@@ -55,6 +58,7 @@ def get_coverage(resources, daily):
         "water": safe_div(resources["water"], daily["water"]),
         "food": safe_div(resources["food"], daily["food"]),
         "fuel": safe_div(resources["fuel_total"], daily["fuel"]),
+        "gas": safe_div(resources["gas"], daily["gas"]) if daily["gas"] > 0 else 999,
         "medical": resources["medical"]
     }
 
@@ -77,6 +81,7 @@ def simulate(resources, daily, target_days):
     food = resources["food"]
     petrol = resources["petrol"]
     diesel = resources["diesel"]
+    gas -= daily["gas"]
     medical = resources["medical"]
 
     fuel_daily = daily["fuel"]
@@ -185,6 +190,7 @@ def analyze(data):
         "food": float(data.get("food", 0)),
         "petrol": float(data.get("petrol", 0)),
         "diesel": float(data.get("diesel", 0)),
+        "gas": float(data.get("gas", 0)),
         "medical": float(data.get("medical", 0))
     }
 
