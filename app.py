@@ -45,7 +45,7 @@ def get_daily_usage(inputs):
     return {
         "water": round(water * people, 2),
         "food": round(food * people, 2),
-        "fuel": round(fuel * people, 2)
+        "fuel": round(fuel * people, 2),
         "gas": round(gas * people, 2)
     }
 
@@ -81,8 +81,8 @@ def simulate(resources, daily, target_days):
     food = resources["food"]
     petrol = resources["petrol"]
     diesel = resources["diesel"]
-    gas -= daily["gas"]
-    medical = resources["medical"]
+    gas = resources["gas"]  # FIX: initialize gas
+    medical = resources["medical"]]
 
     fuel_daily = daily["fuel"]
 
@@ -97,13 +97,16 @@ def simulate(resources, daily, target_days):
         if total_fuel > 0:
             petrol -= fuel_daily * (petrol / total_fuel)
             diesel -= fuel_daily * (diesel / total_fuel)
-
+        # FIX: gas depletion per day
+        gas -= daily["gas"]
+        
         medical -= 1
 
         water = max(water, 0)
         food = max(food, 0)
         petrol = max(petrol, 0)
         diesel = max(diesel, 0)
+        gas = max(gas, 0
         medical = max(medical, 0)
 
         fuel_total = petrol + diesel
@@ -115,6 +118,8 @@ def simulate(resources, daily, target_days):
             failures.append("food")
         if fuel_total <= 0:
             failures.append("fuel")
+        if gas <= 0:  # FIX: include gas failure
+            failures.append("gas")    
         if medical <= 0:
             failures.append("medical")
 
@@ -125,6 +130,7 @@ def simulate(resources, daily, target_days):
             "petrol": round(petrol, 2),
             "diesel": round(diesel, 2),
             "fuel_total": round(fuel_total, 2),
+            "gas": round(gas, 2),  # FIX: include gas in output
             "medical": round(medical, 2),
             "collapse": len(failures) > 0,
             "failures": failures
