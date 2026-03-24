@@ -82,7 +82,7 @@ def simulate(resources, daily, target_days):
     petrol = resources["petrol"]
     diesel = resources["diesel"]
     gas = resources["gas"]  # FIX: initialize gas
-    medical = resources["medical"]]
+    medical = resources["medical"]
 
     fuel_daily = daily["fuel"]
 
@@ -106,7 +106,7 @@ def simulate(resources, daily, target_days):
         food = max(food, 0)
         petrol = max(petrol, 0)
         diesel = max(diesel, 0)
-        gas = max(gas, 0
+        gas = max(gas, 0)
         medical = max(medical, 0)
 
         fuel_total = petrol + diesel
