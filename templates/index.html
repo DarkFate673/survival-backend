@@ -427,7 +427,7 @@
                         </div>
 
                         <div class="input-group">
-                            <label for="gas">Gas (litres or kg)</label>
+                            <label for="gas">Gas (kg)</label>
                             <input id="gas" type="number" value="0">
                         </div>
                     </div>
@@ -581,6 +581,11 @@
                     available: fuelAvailable,
                     daily: `${data.daily?.fuel ?? 0} L`
                 },
+                {
+                    key: "gas",
+                    available: `${data.resources.gas} kg`,
+                    daily: `${data.daily.gas} kg`
+                }
                 {
                     key: "medical",
                     label: "Medical",
