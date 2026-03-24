@@ -583,9 +583,10 @@
                 },
                 {
                     key: "gas",
-                    available: `${data.resources.gas} kg`,
-                    daily: `${data.daily.gas} kg`
-                }
+                    label: "Gas",
+                    available: `${data.resources.gas ?? 0} kg`,
+                    daily: `${data.daily.gas ?? 0} kg`
+                },
                 {
                     key: "medical",
                     label: "Medical",
