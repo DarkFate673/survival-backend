@@ -425,10 +425,13 @@
                             <label for="diesel">Diesel (litres)</label>
                             <input id="diesel" type="number" min="0" value="0" />
                         </div>
+
+                        <div class="input-group">
                             <label for="gas">Gas (litres or kg)</label>
                             <input id="gas" type="number" value="0">
                         </div>
-
+                    </div>
+                
                     <button class="btn" onclick="runAnalysis()">Run Survival Analysis</button>
                     <div id="error_box" class="error"></div>
                 </div>
@@ -532,7 +535,7 @@
                 food: Number(document.getElementById("food").value),
                 petrol: Number(document.getElementById("petrol").value),
                 diesel: Number(document.getElementById("diesel").value),
-                gas: Number(document.getElementById("gas").value)
+                gas: Number(document.getElementById("gas").value),
                 medical: Number(document.getElementById("medical").value),
                 activity: document.getElementById("activity").value,
                 climate: document.getElementById("climate").value,
